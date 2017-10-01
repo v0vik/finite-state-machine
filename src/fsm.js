@@ -6,11 +6,9 @@ class FSM {
     constructor(config) {
         if (!config) throw new Error;
         this.config = config;
-       // this.initialState = config.initial;
-         this.state = config.initial;
-        // this.states = config.states;  // Object.keys()
-         this.statesArray = [this.state];
-         this.redoState = [];
+        this.state = config.initial;
+        this.statesArray = [this.state];
+        this.redoState = [];
     }
 
     /**
@@ -29,6 +27,7 @@ class FSM {
         if (Object.keys(this.config.states).includes(state)){
             this.state = state;
             this.statesArray.push(this.state);
+            this.redoState = [];
         } else throw new Error;
     }
 
@@ -40,6 +39,7 @@ class FSM {
         if (Object.keys(this.config.states[this.state].transitions).includes(event)) {
             this.state = this.config.states[this.state].transitions[event];
             this.statesArray.push(this.state);
+            this.redoState = [];
         } else throw new Error;
     }
 
@@ -48,7 +48,6 @@ class FSM {
      */
     reset() {
         this.state = this.config.initial;
-      //  this.statesArray = [];
     }
 
     /**
@@ -62,7 +61,6 @@ class FSM {
         if (!event) {
             return Object.keys(this.config.states);
         } else {
-
             for (let stateName in this.config.states) {
                 for (let transName in this.config.states[stateName].transitions) {
                     if (transName === event) {
@@ -72,7 +70,7 @@ class FSM {
             }
         }
 
-        return result; 
+        return result;
     }
 
     /**
@@ -94,13 +92,20 @@ class FSM {
      * @returns {Boolean}
      */
     redo() {
-        if (this.redoState) {}
+        if (this.redoState.length > 0) {
+            this.state = this.redoState.pop();
+            this.statesArray.push(this.state);
+            return true;
+        } else return false;
     }
 
     /**
      * Clears transition history
      */
-    clearHistory() {}
+    clearHistory() {
+        this.statesArray = [this.state];
+        this.redoState = [];
+    }
 }
 
 module.exports = FSM;
